@@ -86,7 +86,7 @@ public class Quark extends Spider {
 
     public static Object[] proxy(Map<String, String> params,String url ,Map<String, String> header) throws Exception {
         String type = params.get("type");
-        if ("video".equals(type)) return QuarkApi.get().proxyVideo(params,url,headers);
+        if ("video".equals(type)) return QuarkApi.get().proxyVideo(params,url,header);
         //if ("sub".equals(type)) return AliYun.get().proxySub(params);
         return null;
     }
