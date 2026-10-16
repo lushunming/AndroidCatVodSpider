@@ -24,7 +24,6 @@ import com.github.catvod.net.OkResult;
 import com.github.catvod.spider.Init;
 import com.github.catvod.spider.Proxy;
 import com.github.catvod.utils.*;
-import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.ByteArrayInputStream;
@@ -55,9 +54,8 @@ public class QuarkApi {
     private AlertDialog dialog;
     private String serviceTicket;
 
-    public Object[] proxyVideo(Map<String, String> params) throws Exception {
-        String url = Util.base64Decode(params.get("url"));
-        Map header = new Gson().fromJson(Util.base64Decode(params.get("header")), Map.class);
+    public Object[] proxyVideo(Map<String, String> params, String url, Map<String, String> header) throws Exception {
+
         if (header == null) header = new HashMap<>();
         List<String> arr = List.of("Range", "Accept", "Accept-Encoding", "Accept-Language", "Cookie", "Origin", "Referer", "Sec-Ch-Ua", "Sec-Ch-Ua-Mobile", "Sec-Ch-Ua-Platform", "Sec-Fetch-Dest", "Sec-Fetch-Mode", "Sec-Fetch-Site", "User-Agent");
         for (String key : params.keySet()) {
@@ -215,7 +213,7 @@ public class QuarkApi {
         header.remove("Content-Type");
         if (flag.contains("quark原画")) {
             playUrl = this.getDownload(shareId, stoken, fileId, fileToken, true);
-            return Result.get().url( Launcher.buildProxyUrl(playUrl, header)).octet().header(header).string();
+            return Result.get().url(Launcher.buildProxyUrl(playUrl, header)).octet().header(header).string();
         } else {
             playUrl = this.getLiveTranscoding(shareId, stoken, fileId, fileToken, flag);
             return Result.get().url(proxyVideoUrl(playUrl, header)).octet().header(header).string();
@@ -225,7 +223,7 @@ public class QuarkApi {
     }
 
     private String proxyVideoUrl(String url, Map<String, String> header) {
-        return String.format(Proxy.getUrl() + "?do=quark&type=video&url=%s&header=%s", Util.base64Encode(url.getBytes(Charset.defaultCharset())), Util.base64Encode(Json.toJson(header).getBytes(Charset.defaultCharset())));
+        return Proxy.buildProxyUrl("quark", url, header, "video");
     }
 
     /**

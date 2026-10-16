@@ -3,6 +3,8 @@ package com.github.catvod.spider;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttp;
+import com.github.catvod.utils.CacheBuilder;
+import com.github.catvod.utils.ConcurrentLruCache;
 import com.github.catvod.utils.ProxyVideo;
 import com.github.catvod.utils.Util;
 import com.google.gson.Gson;
@@ -16,7 +18,9 @@ import java.util.Map;
 public class Proxy extends Spider {
 
     private static int port = -1;
+    public static ConcurrentLruCache<String, String> urlMap = CacheBuilder.<String, String>newBuilder().initialCapacity(100).concurrencyLevel(Runtime.getRuntime().availableProcessors()).maximumSize(5000).recordStats().build();
 
+    public static ConcurrentLruCache<String, Map<String, String>> headerMap = CacheBuilder.<String, Map<String, String>>newBuilder().initialCapacity(100).concurrencyLevel(Runtime.getRuntime().availableProcessors()).maximumSize(5000).recordStats().build();
     public static Object[] proxy(Map<String, String> params) throws Exception {
         switch (params.get("do")) {
             case "ck":
@@ -24,7 +28,10 @@ public class Proxy extends Spider {
             case "ali":
                 return Ali.proxy(params);
             case "quark":
-                return Quark.proxy(params);
+                String key = params.get("key");
+                String url = urlMap.get(key);
+                Map<String, String> header = headerMap.get(key);
+                return Quark.proxy(params, url, header);
             case "uc":
                 return UC.proxy(params);
             case "bili":
@@ -81,5 +88,24 @@ public class Proxy extends Spider {
     public static String getUrl() {
         adjustPort();
         return "http://127.0.0.1:" + port + "/proxy";
+    }
+
+
+    /**
+     * 构建代理链接
+     *
+     * @param name   代理do参数
+     * @param url    链接
+     * @param header header
+     * @param type   video or sub  视频还是字幕
+     * @return
+     */
+    public static String buildProxyUrl(String name, String url, Map<String, String> header, String type) {
+
+        String key = Util.MD5(url);
+        urlMap.put(key, url);
+        headerMap.put(key, header);
+
+        return getUrl() + "?do=" + name + "&key=" + key + "&type=" + type;
     }
 }
