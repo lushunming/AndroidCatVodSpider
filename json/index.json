@@ -99,6 +99,17 @@
       "ext": {}
     },
     {
+      "key": "Dida",
+      "name": "嘀嗒影视",
+      "type": 3,
+      "api": "csp_Dida",
+      "searchable": 1,
+      "changeable": 1,
+      "ext": {
+        "site": ["https://www.didahd.xyz/"]
+      }
+    },
+    {
       "key": "PanTa",
       "name": "盘他|139Pan",
       "type": 3,
