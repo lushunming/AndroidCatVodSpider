@@ -1,6 +1,7 @@
 package com.github.catvod.spider;
 
-import cn.hutool.core.util.StrUtil;
+
+import android.content.Context;
 import com.github.catvod.bean.Class;
 import com.github.catvod.bean.Result;
 import com.github.catvod.bean.Vod;
@@ -10,6 +11,7 @@ import com.github.catvod.utils.Json;
 import com.github.catvod.utils.ProxyVideo;
 import com.github.catvod.utils.Util;
 import com.google.gson.JsonElement;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,6 +20,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -64,8 +67,8 @@ public class Dida extends Cloud {
     }
 
     @Override
-    public void init(String extend) throws Exception {
-        super.init(extend);
+    public void init(Context context, String extend) throws Exception {
+        super.init(context,extend);
         JsonElement json = Json.parse(extend);
         String html = OkHttp.string(json.getAsJsonObject().get("site").getAsString());
         Document doc = Jsoup.parse(html);
@@ -260,7 +263,7 @@ public class Dida extends Cloud {
             String urlNext = player.getString("url_next");
             String from = player.getString("from");
             if(encrypt==3){
-                String urlTmp="static/player/artplayer/?url="+url+"&next="+ (StrUtil.isBlank(urlNext) ?"":siteUrl+urlNext);
+                String urlTmp="static/player/artplayer/?url="+url+"&next="+ (StringUtils.isBlank(urlNext) ?"":siteUrl+urlNext);
                 String playerInfo=OkHttp.string(siteUrl+urlTmp, getHeaders(siteUrl));
 
             }
@@ -272,9 +275,9 @@ public class Dida extends Cloud {
     }
 
     @Override
-    public String searchContent(String key, boolean quick) {
+    public String searchContent(String key, boolean quick) throws UnsupportedEncodingException {
 
-        String url = siteUrl + "?search/-------------.html?wd=" + URLEncoder.encode(key, StandardCharsets.UTF_8) + "&submit=";
+        String url = siteUrl + "?search/-------------.html?wd=" + java.net.URLEncoder.encode(key, "UTF-8") + "&submit=";
         Document doc = Jsoup.parse(OkHttp.string(url, getHeaders(url)));
         List<Vod> vods = new ArrayList<>();
         Elements elements = doc.select(" a.myui-vodlist__thumb");
